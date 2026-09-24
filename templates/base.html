@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ShopX - Local Commerce, Connected{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo & Nav Links -->
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'dashboard-overview' %}" class="flex items-center space-x-2">
+                        <span class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
+                            ShopX
+                        </span>
+                        <span class="text-xs bg-indigo-900 text-indigo-200 px-2 py-0.5 rounded font-semibold uppercase tracking-wider">USSD Commerce</span>
+                    </a>
+
+                    {% if user.is_authenticated %}
+                    <div class="hidden md:flex space-x-4">
+                        <a href="{% url 'dashboard-overview' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition">Dashboard</a>
+                        <a href="{% url 'dashboard-products' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition">Products</a>
+                        <a href="{% url 'dashboard-inventory' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition">Inventory</a>
+                        <a href="{% url 'dashboard-orders' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition">Orders</a>
+                        <a href="{% url 'dashboard-profile' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition">Business Profile</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- User Controls / Auth -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <span class="text-sm text-gray-300 hidden sm:inline">
+                            Hi, <strong class="text-white">{{ user.username }}</strong>
+                        </span>
+                        <form action="{% url 'logout' %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-sm px-4 py-2 rounded-lg font-medium transition">
+                                Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-sm hover:text-white px-3 py-2 transition">Merchant Login</a>
+                        <a href="{% url 'register' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow">
+                            Register Business
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Messages Banner -->
+        {% if messages %}
+            <div class="space-y-3 mb-6">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg text-sm font-medium border flex justify-between items-center
+                        {% if message.tags == 'error' %} bg-red-900 border-red-700 text-red-100
+                        {% elif message.tags == 'success' %} bg-green-900 border-green-700 text-green-100
+                        {% else %} bg-indigo-900 border-indigo-700 text-indigo-100 {% endif %}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-sm text-gray-400">
+        <p>&copy; 2026 ShopX Platform. Telecom-Powered Local Commerce.</p>
+    </footer>
+</body>
+</html>

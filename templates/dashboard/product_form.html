@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - ShopX{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-gray-800 rounded-xl p-8 shadow-2xl border border-gray-700">
+    <h2 class="text-2xl font-bold text-white mb-6">{{ title }}</h2>
+
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Product Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}<p class="text-red-400 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}<p class="text-red-400 text-xs mt-1">{{ form.category.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Price (Naira)</label>
+                {{ form.price }}
+                {% if form.price.errors %}<p class="text-red-400 text-xs mt-1">{{ form.price.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        {% if form.initial_stock %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-900 p-4 rounded-lg border border-gray-700">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Initial Stock Quantity</label>
+                {{ form.initial_stock }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Low Stock Warning Limit</label>
+                {{ form.low_stock_threshold }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+            {{ form.description }}
+        </div>
+
+        <div class="flex items-center space-x-2">
+            {{ form.is_active }}
+            <label class="text-sm text-gray-300">Active (Visible to USSD customers)</label>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+            <a href="{% url 'dashboard-products' %}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-gray-300 font-medium">Cancel</a>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold shadow">Save Product</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-input, .form-select, .form-textarea {
+        width: 100%;
+        background-color: #111827;
+        border: 1px solid #4B5563;
+        border-radius: 0.5rem;
+        padding: 0.625rem 1rem;
+        color: #FFFFFF;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #6366F1;
+    }
+    .form-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}

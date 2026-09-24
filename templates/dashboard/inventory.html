@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Management - ShopX{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Stock & Inventory Control</h1>
+        <p class="text-sm text-gray-400">Track physical stock, pending reservations, and stock thresholds.</p>
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow">
+        <table class="w-full text-left text-sm text-gray-300">
+            <thead class="bg-gray-900 text-xs uppercase text-gray-400 border-b border-gray-700">
+                <tr>
+                    <th class="py-3 px-4">Product</th>
+                    <th class="py-3 px-4">Total Physical Stock</th>
+                    <th class="py-3 px-4">Reserved Stock</th>
+                    <th class="py-3 px-4">Available for USSD</th>
+                    <th class="py-3 px-4">Stock Status</th>
+                    <th class="py-3 px-4">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700">
+                {% for product in products %}
+                <tr class="hover:bg-gray-750">
+                    <td class="py-3 px-4 font-semibold text-white">{{ product.name }}</td>
+                    <td class="py-3 px-4 font-mono text-lg text-gray-200">{{ product.inventory.quantity }}</td>
+                    <td class="py-3 px-4 font-mono text-yellow-400">{{ product.inventory.reserved_quantity }}</td>
+                    <td class="py-3 px-4 font-mono text-lg font-bold text-indigo-300">{{ product.inventory.available_quantity }}</td>
+                    <td class="py-3 px-4">
+                        {% if product.inventory.is_out_of_stock %}
+                            <span class="bg-red-900 text-red-200 border border-red-700 text-xs font-semibold px-2.5 py-1 rounded">OUT OF STOCK</span>
+                        {% elif product.inventory.is_low_stock %}
+                            <span class="bg-yellow-900 text-yellow-200 border border-yellow-700 text-xs font-semibold px-2.5 py-1 rounded">LOW STOCK</span>
+                        {% else %}
+                            <span class="bg-green-900 text-green-200 border border-green-700 text-xs font-semibold px-2.5 py-1 rounded">HEALTHY</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">
+                        <a href="{% url 'stock-adjust' product.pk %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-3 py-1.5 rounded shadow">
+                            Adjust Stock
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

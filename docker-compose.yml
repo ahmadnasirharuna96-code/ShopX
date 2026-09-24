@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: shopx_db
+    restart: always
+    environment:
+      POSTGRES_DB: shopx_db
+      POSTGRES_USER: shopx_user
+      POSTGRES_PASSWORD: shopx_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shopx_user -d shopx_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: shopx_web
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-shopx-secret-key-change-in-production
+      - ALLOWED_HOSTS=localhost,127.0.0.1,*
+      - DATABASE_URL=postgresql://shopx_user:shopx_password@db:5432/shopx_db
+      - AFRICASTALKING_USERNAME=sandbox
+      - AFRICASTALKING_API_KEY=your_africastalking_api_key_here
+      - AFRICASTALKING_SENDER_ID=ShopX
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

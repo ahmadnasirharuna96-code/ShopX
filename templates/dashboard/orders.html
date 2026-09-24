@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Orders Management - ShopX{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-white">USSD Customer Orders</h1>
+            <p class="text-sm text-gray-400">Review, confirm, and fulfill incoming orders.</p>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="flex flex-wrap gap-2 text-xs">
+            <a href="{% url 'dashboard-orders' %}" class="px-3 py-1.5 rounded-lg border {% if not status_filter %} bg-indigo-600 text-white border-indigo-500 {% else %} bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 {% endif %}">All</a>
+            <a href="{% url 'dashboard-orders' %}?status=PENDING" class="px-3 py-1.5 rounded-lg border {% if status_filter == 'PENDING' %} bg-yellow-600 text-white border-yellow-500 {% else %} bg-gray-800 text-yellow-400 border-gray-700 hover:bg-gray-700 {% endif %}">Pending</a>
+            <a href="{% url 'dashboard-orders' %}?status=BUSINESS_CONFIRMED" class="px-3 py-1.5 rounded-lg border {% if status_filter == 'BUSINESS_CONFIRMED' %} bg-blue-600 text-white border-blue-500 {% else %} bg-gray-800 text-blue-400 border-gray-700 hover:bg-gray-700 {% endif %}">Confirmed</a>
+            <a href="{% url 'dashboard-orders' %}?status=DELIVERED" class="px-3 py-1.5 rounded-lg border {% if status_filter == 'DELIVERED' %} bg-green-600 text-white border-green-500 {% else %} bg-gray-800 text-green-400 border-gray-700 hover:bg-gray-700 {% endif %}">Delivered</a>
+        </div>
+    </div>
+
+    <div class="space-y-4">
+        {% if orders %}
+            {% for order in orders %}
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-md space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-700 pb-3 gap-2">
+                    <div>
+                        <span class="text-lg font-mono font-extrabold text-indigo-300">Order #{{ order.order_number }}</span>
+                        <span class="text-xs text-gray-400 ml-3">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                            {% if order.status == 'PENDING' %} bg-yellow-900 text-yellow-200 border border-yellow-700
+                            {% elif order.status == 'BUSINESS_CONFIRMED' %} bg-blue-900 text-blue-200 border border-blue-700
+                            {% elif order.status == 'DELIVERED' %} bg-green-900 text-green-200 border border-green-700
+                            {% elif order.status == 'REJECTED' or order.status == 'CANCELLED' %} bg-red-900 text-red-200 border border-red-700
+                            {% else %} bg-indigo-900 text-indigo-200 border border-indigo-700 {% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded
+                            {% if order.payment_status == 'PAID' %} bg-green-900 text-green-200 {% else %} bg-yellow-900 text-yellow-200 {% endif %}">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <!-- Customer Details -->
+                    <div>
+                        <p class="text-xs uppercase font-semibold text-gray-400">Customer</p>
+                        <p class="font-bold text-white mt-1">{{ order.customer.name }}</p>
+                        <p class="font-mono text-indigo-300">{{ order.customer.phone_number }}</p>
+                    </div>
+
+                    <!-- Delivery Address -->
+                    <div>
+                        <p class="text-xs uppercase font-semibold text-gray-400">Delivery Address</p>
+                        {% if order.address %}
+                            <p class="text-gray-200 mt-1">{{ order.address.full_address_single_line }}</p>
+                        {% else %}
+                            <p class="text-gray-400 mt-1">Standard Delivery</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Order Total -->
+                    <div>
+                        <p class="text-xs uppercase font-semibold text-gray-400">Total Amount</p>
+                        <p class="text-2xl font-bold text-white font-mono mt-1">N{{ order.total_amount }}</p>
+                        <p class="text-xs text-gray-400">Payment: {{ order.get_payment_method_display }}</p>
+                    </div>
+                </div>
+
+                <!-- Items Purchased -->
+                <div class="bg-gray-900 rounded-lg p-3 border border-gray-700">
+                    <p class="text-xs uppercase font-semibold text-gray-400 mb-2">Order Items</p>
+                    <ul class="divide-y divide-gray-800 text-sm">
+                        {% for item in order.items.all %}
+                        <li class="py-1.5 flex justify-between">
+                            <span class="text-white">{{ item.quantity }}x {{ item.product_name }}</span>
+                            <span class="font-mono text-gray-300">N{{ item.subtotal }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Status Actions Bar -->
+                <div class="flex justify-end items-center space-x-3 pt-2">
+                    {% if order.status == 'PENDING' %}
+                        <form action="{% url 'order-accept' order.pk %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button class="bg-green-600 hover:bg-green-500 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow transition">
+                                Accept Order
+                            </button>
+                        </form>
+                        <form action="{% url 'order-reject' order.pk %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button class="bg-red-600 hover:bg-red-500 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow transition">
+                                Reject Order
+                            </button>
+                        </form>
+
+                    {% elif order.status == 'BUSINESS_CONFIRMED' %}
+                        <form action="{% url 'order-status-update' order.pk %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="PREPARING">
+                            <button class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow">
+                                Start Preparing Order
+                            </button>
+                        </form>
+
+                    {% elif order.status == 'PREPARING' %}
+                        <form action="{% url 'order-status-update' order.pk %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="READY_FOR_DELIVERY">
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow">
+                                Mark Ready for Delivery
+                            </button>
+                        </form>
+
+                    {% elif order.status == 'READY_FOR_DELIVERY' %}
+                        <form action="{% url 'order-status-update' order.pk %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="OUT_FOR_DELIVERY">
+                            <button class="bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow">
+                                Dispatch (Out for Delivery)
+                            </button>
+                        </form>
+
+                    {% elif order.status == 'OUT_FOR_DELIVERY' %}
+                        <form action="{% url 'order-status-update' order.pk %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="DELIVERED">
+                            <button class="bg-green-600 hover:bg-green-500 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow">
+                                Mark Delivered & Paid
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="p-8 bg-gray-800 rounded-xl border border-gray-700 text-center text-gray-400">
+            <p>No orders found matching the criteria.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

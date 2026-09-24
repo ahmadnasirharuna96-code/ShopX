@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - ShopX{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Product Catalog</h1>
+            <p class="text-sm text-gray-400">Products available for USSD customer browsing.</p>
+        </div>
+        <a href="{% url 'product-create' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">
+            + Add Product
+        </a>
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow">
+        {% if products %}
+        <table class="w-full text-left text-sm text-gray-300">
+            <thead class="bg-gray-900 text-xs uppercase text-gray-400 border-b border-gray-700">
+                <tr>
+                    <th class="py-3 px-4">Product Name</th>
+                    <th class="py-3 px-4">Category</th>
+                    <th class="py-3 px-4">Price</th>
+                    <th class="py-3 px-4">Stock</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700">
+                {% for product in products %}
+                <tr class="hover:bg-gray-750">
+                    <td class="py-3 px-4 font-semibold text-white">{{ product.name }}</td>
+                    <td class="py-3 px-4">{{ product.category.name }}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-300">N{{ product.price }}</td>
+                    <td class="py-3 px-4">
+                        {% if product.inventory %}
+                            <span class="font-mono">{{ product.inventory.available_quantity }}</span> available
+                            <span class="text-xs text-gray-400">({{ product.inventory.reserved_quantity }} reserved)</span>
+                        {% else %}
+                            <span class="text-red-400">No stock entry</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">
+                        {% if product.is_active %}
+                            <span class="bg-green-900 text-green-200 text-xs px-2.5 py-1 rounded font-semibold border border-green-700">Active</span>
+                        {% else %}
+                            <span class="bg-gray-700 text-gray-400 text-xs px-2.5 py-1 rounded font-semibold">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">
+                        <a href="{% url 'product-edit' product.pk %}" class="text-indigo-400 hover:underline font-semibold text-xs">Edit Product</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-8 text-center text-gray-400">
+            <p>No products added yet.</p>
+            <a href="{% url 'product-create' %}" class="text-indigo-400 underline font-semibold mt-2 inline-block">Create your first product</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

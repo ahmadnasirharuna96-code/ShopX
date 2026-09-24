@@ -18,15 +18,15 @@ class Inventory(models.Model):
         verbose_name_plural = "Inventories"
         constraints = [
             models.CheckConstraint(
-                condition=models.Q(quantity__gte=models.F("reserved_quantity")),
+                check=models.Q(quantity__gte=models.F("reserved_quantity")),
                 name="quantity_gte_reserved"
             ),
             models.CheckConstraint(
-                condition=models.Q(reserved_quantity__gte=0),
+                check=models.Q(reserved_quantity__gte=0),
                 name="reserved_quantity_non_negative"
             ),
             models.CheckConstraint(
-                condition=models.Q(quantity__gte=0),
+                check=models.Q(quantity__gte=0),
                 name="quantity_non_negative"
             )
         ]

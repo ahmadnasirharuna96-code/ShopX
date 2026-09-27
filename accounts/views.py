@@ -19,7 +19,7 @@ class ShopXLoginView(LoginView):
 
 
 class ShopXLogoutView(LogoutView):
-    next_page = reverse_lazy("login")
+    next_page = reverse_lazy("shop-home")
 
 
 def register_business_view(request):

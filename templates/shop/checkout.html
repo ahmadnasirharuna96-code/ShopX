@@ -1,0 +1,161 @@
+{% extends "shop/base_shop.html" %}
+
+{% block title %}Checkout - ShopX{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="border-b border-gray-800 pb-4">
+        <h1 class="text-2xl font-black text-white">Order Checkout</h1>
+        <p class="text-xs text-gray-400 mt-1">Complete your order details below. Pay on Delivery.</p>
+    </div>
+
+    <!-- Non-Blocking Login/Register Banner for Guest Customers -->
+    {% if not user.is_authenticated %}
+    <div class="bg-gradient-to-r from-indigo-950 via-gray-900 to-indigo-950 border border-indigo-800/80 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow">
+        <div class="space-y-0.5">
+            <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">⚡ Quick Guest Checkout</span>
+            <p class="text-xs text-gray-300">You are checking out as a <strong>Guest</strong>. You can place your order instantly below!</p>
+        </div>
+        <div class="flex items-center space-x-2 text-xs flex-shrink-0">
+            <span class="text-gray-400">Have an account?</span>
+            <a href="{% url 'customer-login' %}?next={% url 'shop-checkout' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg shadow">Login</a>
+            <a href="{% url 'customer-register' %}?next={% url 'shop-checkout' %}" class="bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold px-3 py-1.5 rounded-lg border border-gray-700">Register</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {% csrf_token %}
+
+        <!-- Left Column: Customer & Delivery Info Form -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Customer Details Card -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-md space-y-4">
+                <h2 class="text-base font-bold text-white border-b border-gray-800 pb-3 flex items-center space-x-2">
+                    <span>👤 Customer Contact Information</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Full Name *</label>
+                        <input type="text" name="name" required
+                            value="{% if customer_profile %}{{ customer_profile.name }}{% elif user.is_authenticated %}{{ user.username }}{% endif %}"
+                            placeholder="e.g. Amina Bello"
+                            class="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Phone Number *</label>
+                        <input type="text" name="phone" required
+                            value="{% if customer_profile %}{{ customer_profile.phone_number }}{% elif user.is_authenticated %}{{ user.phone_number }}{% endif %}"
+                            placeholder="e.g. 08012345678"
+                            class="w-full bg-gray-950 border border-gray-700 text-white font-mono text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Email Address (Optional)</label>
+                    <input type="email" name="email"
+                        value="{% if customer_profile %}{{ customer_profile.email }}{% elif user.is_authenticated %}{{ user.email }}{% endif %}"
+                        placeholder="e.g. customer@example.com"
+                        class="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <!-- Delivery Address Card -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-md space-y-4">
+                <h2 class="text-base font-bold text-white border-b border-gray-800 pb-3 flex items-center space-x-2">
+                    <span>📍 Delivery Destination</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Area / Neighborhood *</label>
+                        <input type="text" name="area" required
+                            value="{% if default_address %}{{ default_address.area }}{% endif %}"
+                            placeholder="e.g. Wuse 2, Sabon Gari, Garki"
+                            class="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Street Name</label>
+                        <input type="text" name="street"
+                            value="{% if default_address %}{{ default_address.street }}{% endif %}"
+                            placeholder="e.g. Commercial Avenue"
+                            class="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">House / Building Number & Landmark</label>
+                        <input type="text" name="house_number"
+                            value="{% if default_address %}{{ default_address.house_number }}{% endif %}"
+                            placeholder="e.g. No. 12, Near Zenith Bank"
+                            class="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">City / Town</label>
+                        <input type="text" name="city"
+                            value="{% if default_address %}{{ default_address.city }}{% else %}Abuja{% endif %}"
+                            class="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method Card -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-md space-y-3">
+                <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                    <span>💵 Payment Option</span>
+                </h2>
+
+                <div class="bg-indigo-950/60 border border-indigo-800 p-4 rounded-xl flex items-center space-x-3">
+                    <input type="radio" checked readonly class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                    <div>
+                        <p class="text-sm font-bold text-white">Pay on Delivery</p>
+                        <p class="text-xs text-gray-300">Pay cash or bank transfer directly when the merchant delivers your items.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Order Summary & Confirm Button -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl space-y-6 h-fit">
+            <h2 class="text-base font-bold text-white border-b border-gray-800 pb-3">Items in Order</h2>
+
+            <ul class="divide-y divide-gray-800 text-xs space-y-3">
+                {% for item in cart_items %}
+                <li class="pt-3 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-white line-clamp-1">{{ item.quantity }}x {{ item.product.name }}</p>
+                        <p class="text-indigo-400">Sold by: {{ item.product.business.name }}</p>
+                    </div>
+                    <span class="font-mono text-gray-200 font-bold">N{{ item.subtotal }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div class="border-t border-gray-800 pt-4 space-y-2 text-sm">
+                <div class="flex justify-between text-base font-extrabold text-white">
+                    <span>Total Amount:</span>
+                    <span class="font-mono text-indigo-400 text-xl">N{{ total_amount }}</span>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-4 rounded-xl shadow-xl transition text-base tracking-wide">
+                Confirm & Place Order &rarr;
+            </button>
+
+            <p class="text-xs text-gray-400 text-center">
+                By placing this order, you agree to pay N{{ total_amount }} upon delivery.
+            </p>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

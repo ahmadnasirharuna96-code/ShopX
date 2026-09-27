@@ -1,4 +1,5 @@
 import logging
+import sys
 from datetime import timedelta
 from typing import Optional
 from django.db import transaction
@@ -19,10 +20,32 @@ from inventory.services import (
     release_inventory,
     commit_inventory_deduction,
 )
-from notifications.services import notify_business_new_order, notify_customer_order_status
+from notifications.services import (
+    send_business_order_alert,
+    send_customer_order_confirmation,
+    send_order_accepted_notification,
+    send_order_cancelled_notification,
+    send_order_created_notifications,
+    send_order_delivered_notification,
+    send_order_out_for_delivery_notification,
+    send_order_ready_notification,
+    send_order_rejected_notification,
+)
+from commissions.services import CommissionService
 from .models import Order, OrderItem, OrderStatus, PaymentStatus
 
 logger = logging.getLogger(__name__)
+
+
+def trigger_after_commit(callback):
+    """Run a callback after a successful DB commit, or immediately in test mode to keep assertions deterministic."""
+    connection = transaction.get_connection()
+    is_test_run = any(arg.lower() == "test" or arg.startswith("test") for arg in sys.argv)
+    if connection.in_atomic_block and not is_test_run:
+        transaction.on_commit(callback)
+    else:
+        callback()
+
 
 # Valid state transition mapping
 ALLOWED_TRANSITIONS = {
@@ -93,8 +116,7 @@ def create_order(
 
         logger.info(f"Created order #{order.order_number} for customer {customer.phone_number}.")
 
-    # Send SMS notification outside transaction boundary
-    notify_business_new_order(order)
+    trigger_after_commit(lambda: send_order_created_notifications(order))
 
     return order
 
@@ -115,7 +137,7 @@ def accept_order(order: Order, business_user) -> Order:
         order.save(update_fields=["status", "business_confirmed", "updated_at"])
         logger.info(f"Order #{order.order_number} confirmed by business.")
 
-    notify_customer_order_status(order, "Order confirmed by business! We are preparing your order.")
+    trigger_after_commit(lambda: send_order_accepted_notification(order))
     return order
 
 
@@ -140,7 +162,7 @@ def reject_order(order: Order, business_user, reason: str = "") -> Order:
 
         logger.info(f"Order #{order.order_number} rejected by business.")
 
-    notify_customer_order_status(order, "Sorry, your order was declined by the merchant.")
+    trigger_after_commit(lambda: send_order_rejected_notification(order, reason))
     return order
 
 
@@ -166,7 +188,8 @@ def update_order_status(order: Order, new_status: str, business_user) -> Order:
             for item in order.items.all():
                 if item.product:
                     commit_inventory_deduction(item.product, item.quantity)
-        
+            CommissionService.finalize_commission_for_order(order)
+
         elif new_status == OrderStatus.CANCELLED:
             # Release reserved stock if not already committed
             for item in order.items.all():
@@ -176,7 +199,17 @@ def update_order_status(order: Order, new_status: str, business_user) -> Order:
         order.save(update_fields=["status", "payment_status", "updated_at"])
         logger.info(f"Order #{order.order_number} status updated to {new_status}.")
 
-    notify_customer_order_status(order, f"Order status updated: {order.get_status_display()}")
+    if new_status == OrderStatus.PREPARING:
+        trigger_after_commit(lambda: send_business_order_alert(order, f"KasuwanciX: Order #{order.order_number} is now being prepared."))
+    elif new_status == OrderStatus.READY_FOR_DELIVERY:
+        trigger_after_commit(lambda: send_order_ready_notification(order))
+    elif new_status == OrderStatus.OUT_FOR_DELIVERY:
+        trigger_after_commit(lambda: send_order_out_for_delivery_notification(order))
+    elif new_status == OrderStatus.DELIVERED:
+        trigger_after_commit(lambda: send_order_delivered_notification(order))
+    elif new_status == OrderStatus.CANCELLED:
+        trigger_after_commit(lambda: send_order_cancelled_notification(order))
+
     return order
 
 

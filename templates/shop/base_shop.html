@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ShopX - Local Commerce, Connected{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Site-wide form input defaults for storefront */
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, select {
+            background-color: #111827; /* darker gray-900 */
+            color: #fff;
+            border: 1px solid #1f2937; /* gray-800 */
+            padding: .5rem .75rem;
+            border-radius: .5rem;
+        }
+
+        input::placeholder, textarea::placeholder { color: #9CA3AF; opacity: 1; }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+            border-color: #6366F1;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-indigo-900 via-blue-900 to-purple-900 text-xs py-1.5 px-4 text-center text-indigo-100 font-medium">
+        <span>📶 ShopX Telecom Commerce — Dial <strong>*384#</strong> on feature phones or shop online below!</span>
+    </div>
+
+    <!-- Storefront Navigation Bar -->
+    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Brand Logo -->
+                <a href="{% url 'shop-home' %}" class="flex items-center space-x-2 flex-shrink-0">
+                    <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-400">
+                        ShopX
+                    </span>
+                    <span class="text-xs bg-indigo-900/80 text-indigo-200 border border-indigo-700 px-2 py-0.5 rounded font-semibold uppercase tracking-wider hidden sm:inline">Storefront</span>
+                </a>
+
+                <!-- Search Bar (Desktop) -->
+                <div class="hidden md:flex flex-1 max-w-md mx-4">
+                    <form action="{% url 'shop-home' %}" method="get" class="w-full relative">
+                        <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search products, brands, or local shops..."
+                            class="w-full bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 text-sm rounded-full py-2 pl-4 pr-10 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                        <button type="submit" class="absolute right-3 top-2.5 text-gray-400 hover:text-indigo-400">
+                            🔍
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center space-x-3 sm:space-x-5 text-sm font-medium">
+                    <!-- Shop Link -->
+                    <a href="{% url 'shop-home' %}" class="text-gray-300 hover:text-white transition hidden sm:inline">Shop</a>
+                    
+                    <!-- My Orders Link -->
+                    <a href="{% url 'shop-my-orders' %}" class="text-gray-300 hover:text-white transition">My Orders</a>
+
+                    <!-- Shopping Cart Icon with Badge -->
+                    <a href="{% url 'shop-cart' %}" class="relative bg-gray-800 hover:bg-gray-700 border border-gray-700 p-2 rounded-full text-gray-200 transition">
+                        🛒
+                        {% if cart_count and cart_count > 0 %}
+                            <span class="absolute -top-1.5 -right-1.5 bg-indigo-600 text-white text-xs font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-900 shadow">
+                                {{ cart_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Auth Section: Non-blocking Login/Register or Account -->
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center space-x-2 border-l border-gray-800 pl-3">
+                            {% if user.is_business_user %}
+                                <a href="{% url 'dashboard-overview' %}" class="bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700 text-xs px-3 py-1.5 rounded-lg transition font-semibold">
+                                    Merchant Dashboard &rarr;
+                                </a>
+                            {% else %}
+                                <span class="text-xs text-gray-300 hidden lg:inline">Hi, <strong>{{ user.username }}</strong></span>
+                            {% endif %}
+                            <form action="{% url 'logout' %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-xs text-gray-400 hover:text-white px-2 py-1">Logout</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center space-x-2 border-l border-gray-800 pl-3">
+                            <a href="{% url 'customer-login' %}" class="text-xs text-gray-300 hover:text-white px-2.5 py-1.5 rounded hover:bg-gray-800 transition">Login</a>
+                            <a href="{% url 'customer-register' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition shadow">Register</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar -->
+            <div class="md:hidden pb-3">
+                <form action="{% url 'shop-home' %}" method="get" class="w-full relative">
+                    <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search products or shops..."
+                        class="w-full bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 text-sm rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:border-indigo-500">
+                    <button type="submit" class="absolute right-3 top-2.5 text-gray-400">🔍</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Messages Banner -->
+        {% if messages %}
+            <div class="space-y-3 mb-6">
+                {% for message in messages %}
+                    <div class="p-4 rounded-xl text-sm font-semibold border flex justify-between items-center shadow-lg
+                        {% if message.tags == 'error' %} bg-red-950 border-red-800 text-red-100
+                        {% elif message.tags == 'success' %} bg-emerald-950 border-emerald-800 text-emerald-100
+                        {% else %} bg-indigo-950 border-indigo-800 text-indigo-100 {% endif %}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8 text-center text-sm text-gray-400">
+        <div class="max-w-7xl mx-auto px-4 space-y-4">
+            <div class="flex justify-center space-x-6 text-xs text-gray-400">
+                <a href="{% url 'shop-home' %}" class="hover:text-white">Storefront</a>
+                <a href="{% url 'shop-my-orders' %}" class="hover:text-white">My Orders</a>
+                <a href="{% url 'login' %}" class="hover:text-white">Merchant Portal</a>
+            </div>
+            <p>&copy; 2026 ShopX Local Commerce Platform. USSD + Web Commerce.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
     dashboard_overview_view,
     products_list_view,
@@ -25,4 +25,6 @@ urlpatterns = [
     path("orders/<int:pk>/reject/", order_reject_view, name="order-reject"),
     path("orders/<int:pk>/status/", order_status_update_view, name="order-status-update"),
     path("profile/", business_profile_view, name="dashboard-profile"),
+    path("commissions/", include("commissions.urls")),
+    path("support/", include("support.urls")),
 ]

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Commission History - ShopX{% endblock %}
+
+{% block content %}
+<div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+  <div class="flex justify-between items-center gap-4 flex-wrap mb-6">
+    <div>
+      <p class="text-xs uppercase tracking-[0.2em] text-indigo-600">Commission Ledger</p>
+      <h1 class="text-3xl font-extrabold text-slate-900 mt-2">History</h1>
+    </div>
+    <a href="{% url 'commission-dashboard' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm">Back to Dashboard</a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-slate-600">
+      <thead class="bg-slate-100 uppercase text-xs text-slate-500 border-b border-slate-200">
+        <tr>
+          <th class="py-3 px-4">Order</th>
+          <th class="py-3 px-4">Product Value</th>
+          <th class="py-3 px-4">Commission</th>
+          <th class="py-3 px-4">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        {% for settlement in settlements %}
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-4 font-mono text-indigo-600">{{ settlement.order.order_number }}</td>
+          <td class="py-3 px-4">N{{ settlement.order.total_amount }}</td>
+          <td class="py-3 px-4">N{{ settlement.commission_amount }}</td>
+          <td class="py-3 px-4 text-slate-700">{{ settlement.status }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="py-4 px-4 text-slate-500" colspan="4">No commission activity has been recorded yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md">
+    <div class="bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-2 flex items-center justify-between gap-2">
+      <a href="{% url 'commission-dashboard' %}" class="flex-1 text-center px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Home</a>
+      <a href="{% url 'commission-history' %}" class="flex-1 text-center px-3 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500">History</a>
+      <a href="{% url 'commission-wallet-topup' %}" class="flex-1 text-center px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Top Up</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -68,7 +68,7 @@ def products_list_view(request):
 def product_create_view(request):
     business = get_merchant_business(request.user)
     if request.method == "POST":
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             with transaction.atomic():
                 product = form.save(commit=False)
@@ -98,7 +98,7 @@ def product_edit_view(request, pk):
     inventory = getattr(product, "inventory", None)
 
     if request.method == "POST":
-        form = ProductForm(request.POST, instance=product)
+        form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             product = form.save()
             if inventory:

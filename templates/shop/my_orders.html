@@ -1,0 +1,67 @@
+{% extends "shop/base_shop.html" %}
+
+{% block title %}My Orders - ShopX{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <a href="{% url 'shop-home' %}" class="inline-flex items-center space-x-2 text-xs font-semibold text-gray-400 hover:text-white transition">
+        <span>&larr; Back to Shop</span>
+    </a>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-2xl">
+        <h2 class="text-xl font-extrabold mb-4">My Orders</h2>
+
+        {% if is_guest %}
+            <div class="p-6 bg-gray-950/40 border border-gray-800 rounded-lg text-sm text-gray-300">
+                <p class="mb-3">You are viewing as a guest. <strong>Create an account or login</strong> to see and manage your orders.</p>
+                <div class="flex space-x-3">
+                    <a href="{% url 'customer-login' %}?next={% url 'shop-my-orders' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">Login</a>
+                    <a href="{% url 'customer-register' %}" class="bg-gray-800 border border-gray-700 text-gray-200 px-4 py-2 rounded-lg text-sm">Register</a>
+                </div>
+            </div>
+        {% else %}
+            {% if orders and orders.exists %}
+                <div class="space-y-4">
+                    {% for order in orders %}
+                        <div class="bg-gray-950 border border-gray-800 rounded-xl p-4">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-400">Order</div>
+                                    <div class="font-mono font-extrabold text-white">{{ order.order_number }}</div>
+                                    <div class="text-xs text-gray-400">Placed {{ order.created_at|date:"F j, Y, g:ia" }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold uppercase text-indigo-300">{{ order.status.display_name|default:order.status }}</div>
+                                    <div class="text-xs text-gray-400">{{ order.items.count }} item(s)</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 text-sm text-gray-300">
+                                <ul class="space-y-2">
+                                    {% for item in order.items.all %}
+                                        <li class="flex items-center justify-between">
+                                            <div class="truncate">{{ item.product.name }} x{{ item.quantity }}</div>
+                                            <div class="font-mono">N{{ item.unit_price|default:item.product.price }}</div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="mt-4 flex items-center justify-between border-t border-gray-800 pt-3">
+                                <div class="text-sm text-gray-400">Delivery to: {{ order.address.summary|default:order.address.area }}</div>
+                                <div class="text-sm font-extrabold">Total: N{{ order.total_amount }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-6 bg-gray-950/40 border border-gray-800 rounded-lg text-sm text-gray-300">
+                    You have no orders yet. Start shopping and place your first order!
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

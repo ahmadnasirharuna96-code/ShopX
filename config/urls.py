@@ -7,13 +7,17 @@ from django.conf.urls.static import static
 def root_redirect(request):
     if request.user.is_authenticated:
         return redirect("dashboard-overview")
-    return redirect("login")
+    # Send unauthenticated users to the public storefront home
+    return redirect("shop-home")
 
 urlpatterns = [
     path("", root_redirect, name="root"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
+    path("shop/", include("shop.urls")),
     path("dashboard/", include("businesses.urls")),
+    path("commissions/", include("commissions.urls")),
+    path("support/", include("support.urls")),
     path("api/ussd/", include("ussd.urls")),
     path("api/", include("api.urls")),
 ]

@@ -1,5 +1,19 @@
 from django.db import models
+from django.db.models import Q, F
 from catalog.models import Product
+
+# Detect whether the installed Django version supports CheckConstraint(..., condition=...)
+# Do this at module import time and expose `__SUPPORTS_CHECK_CONSTRAINT_CHECK__` for
+# use inside the model Meta class. Keep `Q` and `F` at module scope so Django does
+# not treat them as invalid Meta attributes.
+__SUPPORTS_CHECK_CONSTRAINT_CHECK__ = False
+try:
+    _ = models.CheckConstraint(condition=Q(quantity__gte=F("reserved_quantity")), name="__test__")
+    __SUPPORTS_CHECK_CONSTRAINT_CHECK__ = True
+except TypeError:
+    __SUPPORTS_CHECK_CONSTRAINT_CHECK__ = False
+except Exception:
+    __SUPPORTS_CHECK_CONSTRAINT_CHECK__ = False
 
 
 class Inventory(models.Model):
@@ -16,20 +30,26 @@ class Inventory(models.Model):
 
     class Meta:
         verbose_name_plural = "Inventories"
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(quantity__gte=models.F("reserved_quantity")),
-                name="quantity_gte_reserved"
-            ),
-            models.CheckConstraint(
-                check=models.Q(reserved_quantity__gte=0),
-                name="reserved_quantity_non_negative"
-            ),
-            models.CheckConstraint(
-                check=models.Q(quantity__gte=0),
-                name="quantity_non_negative"
-            )
-        ]
+        # Only add database-level CheckConstraints when supported by the
+        # installed Django version. Use the module-level detection flag and
+        # module-scoped `Q`/`F` imports so Django does not interpret them as
+        # invalid Meta attributes.
+        constraints = []
+        if __SUPPORTS_CHECK_CONSTRAINT_CHECK__:
+            constraints = [
+                models.CheckConstraint(
+                    condition=Q(quantity__gte=F("reserved_quantity")),
+                    name="quantity_gte_reserved"
+                ),
+                models.CheckConstraint(
+                    condition=Q(reserved_quantity__gte=0),
+                    name="reserved_quantity_non_negative"
+                ),
+                models.CheckConstraint(
+                    condition=Q(quantity__gte=0),
+                    name="quantity_non_negative"
+                )
+            ]
 
     @property
     def available_quantity(self) -> int:

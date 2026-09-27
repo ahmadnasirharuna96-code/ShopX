@@ -15,3 +15,11 @@ class BusinessRegistrationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ("username", "email", "phone_number")
+
+
+class CustomerCreationForm(UserCreationForm):
+    """UserCreationForm bound to the project's custom User model for storefront customers."""
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ("username", "email", "phone_number")

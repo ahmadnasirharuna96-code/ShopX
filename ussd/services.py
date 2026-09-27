@@ -73,9 +73,17 @@ class USSDService:
             elif latest_input == "2":
                 return cls._show_my_orders(phone_number)
             elif latest_input == "3":
-                return cls._show_help()
+                return cls._show_help(session)
             else:
                 return "Invalid option.\n1. Browse Shops\n2. My Orders\n3. Help", False
+
+        elif state == "SUPPORT_MENU":
+            if latest_input == "1":
+                return cls._show_customer_support_orders(session, phone_number)
+            elif latest_input == "0":
+                session.current_state = "MAIN_MENU"
+                return cls._show_initial_menu(session)
+            return cls._show_help(session)
 
         elif state == "CATEGORY_SELECTION":
             return cls._handle_category_selection(session, latest_input)
@@ -134,13 +142,34 @@ class USSDService:
         return menu, False
 
     @classmethod
-    def _show_help(cls) -> Tuple[str, bool]:
+    def _show_help(cls, session: USSDSession = None) -> Tuple[str, bool]:
+        if session is not None:
+            session.current_state = "SUPPORT_MENU"
         help_msg = (
-            "ShopX connects you directly to local businesses.\n"
-            "Browse items, check real-time stock, and order with Pay on Delivery.\n"
-            "Support: +23480000SHOPX"
+            "Customer Support\n"
+            "1. Speak with the business for my order\n"
+            "2. Report a problem\n"
+            "0. Back"
         )
-        return help_msg, True
+        return help_msg, False
+
+    @classmethod
+    def _show_customer_support_orders(cls, session: USSDSession, phone_number: str) -> Tuple[str, bool]:
+        customer = Customer.objects.filter(phone_number=phone_number).first()
+        if not customer:
+            session.current_state = "MAIN_MENU"
+            return "You do not have any orders with ShopX yet.", True
+
+        recent_orders = Order.objects.filter(customer=customer).order_by("-created_at")[:5]
+        if not recent_orders.exists():
+            session.current_state = "MAIN_MENU"
+            return "You do not have any active orders to contact about.", True
+
+        lines = ["Select order:"]
+        for idx, order in enumerate(recent_orders, 1):
+            lines.append(f"{idx}. #{order.order_number} - {order.business.name}")
+        session.current_state = "SUPPORT_ORDER_SELECTION"
+        return "\n".join(lines), False
 
     @classmethod
     def _show_my_orders(cls, phone_number: str) -> Tuple[str, bool]:

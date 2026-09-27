@@ -1,0 +1,99 @@
+{% extends "shop/base_shop.html" %}
+
+{% block title %}{{ product.name }} - ShopX{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8">
+
+    <!-- Back Navigation -->
+    <a href="{% url 'shop-home' %}" class="inline-flex items-center space-x-2 text-xs font-semibold text-gray-400 hover:text-white transition">
+        <span>&larr; Back to Shop</span>
+    </a>
+
+    <!-- Product Layout Grid -->
+    <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Large Product Image Container -->
+        <div class="bg-gray-950 rounded-2xl overflow-hidden border border-gray-800 flex items-center justify-center p-4">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-80 md:h-96 object-contain rounded-xl shadow">
+        </div>
+
+        <!-- Product Details & Purchase Form -->
+        <div class="flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                
+                <!-- Category & Stock Status Badges -->
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        {{ product.category.name }}
+                    </span>
+
+                    {% if product.inventory.is_out_of_stock %}
+                        <span class="bg-red-950 text-red-200 border border-red-800 text-xs font-bold px-3 py-1 rounded-full">
+                            OUT OF STOCK
+                        </span>
+                    {% elif product.inventory.is_low_stock %}
+                        <span class="bg-amber-950 text-amber-200 border border-amber-800 text-xs font-bold px-3 py-1 rounded-full">
+                            LOW STOCK ({{ product.inventory.available_quantity }} left)
+                        </span>
+                    {% else %}
+                        <span class="bg-emerald-950 text-emerald-200 border border-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
+                            IN STOCK ({{ product.inventory.available_quantity }} available)
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Product Name -->
+                <h1 class="text-2xl md:text-3xl font-black text-white leading-snug">
+                    {{ product.name }}
+                </h1>
+
+                <!-- Price -->
+                <div class="bg-gray-950/80 p-4 rounded-xl border border-gray-800 inline-block">
+                    <span class="text-xs text-gray-400 block">Unit Price</span>
+                    <span class="text-3xl font-black text-white font-mono">N{{ product.price }}</span>
+                </div>
+
+                <!-- Merchant / Seller Info -->
+                <div class="bg-gray-800/60 p-4 rounded-xl border border-gray-700/60 space-y-1">
+                    <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Store Information</p>
+                    <p class="text-sm font-extrabold text-white">🏬 Sold by: {{ product.business.name }}</p>
+                    <p class="text-xs text-gray-300">📍 {{ product.business.address }}, {{ product.business.city }} | Contact: {{ product.business.phone_number }}</p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-1">Product Description</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed bg-gray-950/40 p-4 rounded-xl border border-gray-800">
+                        {{ product.description|default:"No specific product description provided by seller." }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Add to Cart Form -->
+            {% if not product.inventory.is_out_of_stock %}
+            <form action="{% url 'cart-add' product.id %}" method="post" class="space-y-4 pt-4 border-t border-gray-800">
+                {% csrf_token %}
+                <div class="flex items-center space-x-4">
+                    <label class="text-xs font-bold text-gray-300 uppercase">Quantity:</label>
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory.available_quantity }}"
+                        class="w-20 bg-gray-950 border border-gray-700 text-white font-mono text-center py-2 rounded-xl focus:outline-none focus:border-indigo-500 font-bold">
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition text-sm flex items-center justify-center space-x-2">
+                        <span>🛒 Add to Shopping Cart</span>
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="bg-red-950/40 border border-red-900/60 p-4 rounded-xl text-center text-red-200 text-sm font-semibold">
+                This item is currently out of stock. Please check back later or dial USSD *384#.
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

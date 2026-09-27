@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Commission Dashboard - ShopX{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <div class="bg-gradient-to-r from-indigo-50 via-white to-sky-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex justify-between items-center gap-4 flex-wrap">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-indigo-600">ShopX Commission</p>
+        <h1 class="text-3xl font-extrabold text-slate-900 mt-2">{{ business.name }}</h1>
+      </div>
+      <div class="flex gap-3 flex-wrap">
+        <a href="{% url 'commission-wallet-topup' %}" class="bg-green-600 hover:bg-green-500 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm">Add Funds</a>
+        <a href="{% url 'commission-history' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm">Commission History</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <p class="text-xs uppercase font-semibold text-slate-500">Total Sales</p>
+      <p class="text-3xl font-bold text-slate-900 mt-2">N{{ total_sales }}</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <p class="text-xs uppercase font-semibold text-slate-500">Completed Orders</p>
+      <p class="text-3xl font-bold text-slate-900 mt-2">{{ completed_orders }}</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <p class="text-xs uppercase font-semibold text-slate-500">ShopX Commission</p>
+      <p class="text-3xl font-bold text-indigo-600 mt-2">N{{ shopx_commission }}</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <p class="text-xs uppercase font-semibold text-slate-500">Wallet Balance</p>
+      <p class="text-3xl font-bold text-emerald-600 mt-2">N{{ wallet_balance }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900">Commission Summary</h2>
+      <div class="mt-5 space-y-4 text-sm">
+        <div class="flex justify-between text-slate-600"><span>Paid Commission</span><span class="font-semibold text-slate-900">N{{ paid_commission }}</span></div>
+        <div class="flex justify-between text-slate-600"><span>Outstanding Commission</span><span class="font-semibold text-amber-600">N{{ outstanding_commission }}</span></div>
+        <div class="flex justify-between text-slate-600"><span>Wallet Balance</span><span class="font-semibold text-emerald-600">N{{ wallet_balance }}</span></div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900">Quick Actions</h2>
+      <div class="mt-5 space-y-3">
+        <a href="{% url 'commission-wallet-topup' %}" class="block bg-green-600 hover:bg-green-500 text-white text-center px-4 py-3 rounded-xl text-sm font-semibold shadow-sm">Add Funds</a>
+        <a href="{% url 'commission-history' %}" class="block bg-indigo-600 hover:bg-indigo-500 text-white text-center px-4 py-3 rounded-xl text-sm font-semibold shadow-sm">Commission History</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md">
+    <div class="bg-white/90 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-2 flex items-center justify-between gap-2">
+      <a href="{% url 'commission-dashboard' %}" class="flex-1 text-center px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Home</a>
+      <a href="{% url 'commission-history' %}" class="flex-1 text-center px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">History</a>
+      <a href="{% url 'commission-wallet-topup' %}" class="flex-1 text-center px-3 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500">Top Up</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

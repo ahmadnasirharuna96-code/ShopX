@@ -43,6 +43,15 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Product.objects.filter(business=self.request.user.owned_business)
         return qs
 
+    def perform_create(self, serializer):
+        # If a business user is creating the product via API, set their business
+        # as the owner automatically. Otherwise, expect `business` to be provided.
+        user = self.request.user
+        if user.is_authenticated and hasattr(user, "owned_business"):
+            serializer.save(business=user.owned_business)
+        else:
+            serializer.save()
+
 
 class InventoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InventorySerializer

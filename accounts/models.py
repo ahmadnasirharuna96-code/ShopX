@@ -6,12 +6,13 @@ class UserRole(models.TextChoices):
     ADMIN = "ADMIN", "Admin"
     BUSINESS_OWNER = "BUSINESS_OWNER", "Business Owner"
     BUSINESS_STAFF = "BUSINESS_STAFF", "Business Staff"
+    CUSTOMER = "CUSTOMER", "Customer"
 
 
 class User(AbstractUser):
     """
     Custom User model for ShopX.
-    Supports authenticated platform roles (ADMIN, BUSINESS_OWNER, BUSINESS_STAFF).
+    Supports authenticated platform roles (ADMIN, BUSINESS_OWNER, BUSINESS_STAFF, CUSTOMER).
     """
     role = models.CharField(
         max_length=20,
@@ -28,6 +29,10 @@ class User(AbstractUser):
     @property
     def is_business_owner(self) -> bool:
         return self.role == UserRole.BUSINESS_OWNER
+
+    @property
+    def is_customer(self) -> bool:
+        return self.role == UserRole.CUSTOMER
 
     @property
     def is_business_user(self) -> bool:

@@ -9,15 +9,69 @@
 
     <form method="post" class="space-y-4">
         {% csrf_token %}
-        {% for field in form %}
+
+        {{ form.non_field_errors }}
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}<p class="text-red-400 text-xs mt-1">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Email address</label>
+            {{ form.email }}
+            {% if form.email.errors %}<p class="text-red-400 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Phone number</label>
+            {{ form.phone_number }}
+            {% if form.phone_number.errors %}<p class="text-red-400 text-xs mt-1">{{ form.phone_number.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}<p class="text-red-400 text-xs mt-1">{{ form.password1.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Password confirmation</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}<p class="text-red-400 text-xs mt-1">{{ form.password2.errors.0 }}</p>{% endif %}
+        </div>
+
+        <hr class="border-t border-gray-700" />
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Business Name</label>
+            {{ form.business_name }}
+            {% if form.business_name.errors %}<p class="text-red-400 text-xs mt-1">{{ form.business_name.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Business Phone</label>
+            {{ form.business_phone }}
+            {% if form.business_phone.errors %}<p class="text-red-400 text-xs mt-1">{{ form.business_phone.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Business Address</label>
+            {{ form.business_address }}
+            {% if form.business_address.errors %}<p class="text-red-400 text-xs mt-1">{{ form.business_address.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <p class="text-red-400 text-xs mt-1">{{ field.errors.0 }}</p>
-                {% endif %}
+                <label class="block text-sm font-medium text-gray-300 mb-1">City</label>
+                {{ form.city }}
             </div>
-        {% endfor %}
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">State</label>
+                {{ form.state }}
+            </div>
+        </div>
 
         <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg transition mt-4">
             Create Business Account

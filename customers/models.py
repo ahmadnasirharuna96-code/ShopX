@@ -1,14 +1,27 @@
 from django.db import models
+from django.conf import settings
 from common.models import TimeStampedModel
 from common.utils import normalize_phone_number
 
 
 class Customer(TimeStampedModel):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="customer_profile"
+    )
     phone_number = models.CharField(max_length=20, unique=True, db_index=True)
     name = models.CharField(max_length=150, blank=True, default="Valued Customer")
+    email = models.EmailField(blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
+
+    @property
+    def is_guest(self) -> bool:
+        return self.user_id is None
 
     def save(self, *args, **kwargs):
         if self.phone_number:
@@ -19,7 +32,8 @@ class Customer(TimeStampedModel):
         return self.addresses.filter(is_default=True).first() or self.addresses.first()
 
     def __str__(self):
-        return f"{self.name} ({self.phone_number})"
+        status = "Registered" if self.user_id else "Guest"
+        return f"{self.name} ({self.phone_number}) [{status}]"
 
 
 class Address(TimeStampedModel):

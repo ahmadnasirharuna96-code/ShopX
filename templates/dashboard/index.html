@@ -15,6 +15,43 @@
         </a>
     </div>
 
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+            <h2 class="text-xl font-bold text-slate-900">Quick Access</h2>
+            <span class="text-xs uppercase tracking-wide text-slate-500">New pages</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <a href="{% url 'dashboard-products' %}" class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 text-left hover:bg-indigo-100 transition">
+                <div class="text-xs font-semibold text-indigo-700 uppercase tracking-wide">Products</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Manage catalog</div>
+            </a>
+            <a href="{% url 'dashboard-inventory' %}" class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-left hover:bg-emerald-100 transition">
+                <div class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Inventory</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Stock control</div>
+            </a>
+            <a href="{% url 'dashboard-orders' %}" class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-left hover:bg-amber-100 transition">
+                <div class="text-xs font-semibold text-amber-700 uppercase tracking-wide">Orders</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Track orders</div>
+            </a>
+            <a href="{% url 'commission-dashboard' %}" class="bg-violet-50 border border-violet-100 rounded-xl p-3 text-left hover:bg-violet-100 transition">
+                <div class="text-xs font-semibold text-violet-700 uppercase tracking-wide">Commission</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Wallet & payouts</div>
+            </a>
+            <a href="{% url 'dashboard-support' %}" class="bg-sky-50 border border-sky-100 rounded-xl p-3 text-left hover:bg-sky-100 transition sm:col-span-2 lg:col-span-2">
+                <div class="text-xs font-semibold text-sky-700 uppercase tracking-wide">Support</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Customer conversations</div>
+            </a>
+            <a href="{% url 'commission-wallet-topup' %}" class="bg-rose-50 border border-rose-100 rounded-xl p-3 text-left hover:bg-rose-100 transition">
+                <div class="text-xs font-semibold text-rose-700 uppercase tracking-wide">Top Up</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Add wallet funds</div>
+            </a>
+            <a href="{% url 'commission-history' %}" class="bg-slate-100 border border-slate-200 rounded-xl p-3 text-left hover:bg-slate-200 transition">
+                <div class="text-xs font-semibold text-slate-700 uppercase tracking-wide">History</div>
+                <div class="mt-2 text-sm font-medium text-slate-800">Commission ledger</div>
+            </a>
+        </div>
+    </div>
+
     <!-- Stat Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 shadow">

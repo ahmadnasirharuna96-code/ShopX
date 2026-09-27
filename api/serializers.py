@@ -4,6 +4,7 @@ from catalog.models import Category, Product
 from inventory.models import Inventory
 from customers.models import Customer, Address
 from orders.models import Order, OrderItem
+from rest_framework.exceptions import ValidationError
 
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -42,14 +43,34 @@ class ProductSerializer(serializers.ModelSerializer):
     business_name = serializers.CharField(source="business.name", read_only=True)
     category_name = serializers.CharField(source="category.name", read_only=True)
     inventory = InventorySerializer(read_only=True)
+    image = serializers.ImageField(required=False, allow_null=True)
+    image_url = serializers.CharField(source="image_url", read_only=True)
 
     class Meta:
         model = Product
         fields = [
             "id", "business", "business_name", "category", "category_name",
             "name", "description", "price", "is_active", "inventory",
-            "created_at", "updated_at"
+            "image", "image_url", "created_at", "updated_at"
         ]
+
+    def validate(self, attrs):
+        # Enforce product image for new products created via API when the
+        # product instance does not already have an image.
+        request = self.context.get("request")
+        is_create = self.instance is None
+
+        # If creating and no image provided in data/files, reject.
+        if is_create:
+            has_image_in_attrs = bool(attrs.get("image"))
+            has_image_in_files = False
+            if request is not None:
+                has_image_in_files = bool(request.FILES.get("image"))
+
+            if not (has_image_in_attrs or has_image_in_files):
+                raise ValidationError({"image": "Product image is required."})
+
+        return attrs
 
 
 class AddressSerializer(serializers.ModelSerializer):

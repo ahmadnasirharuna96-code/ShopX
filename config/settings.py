@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     "ussd.apps.UssdConfig",
     "notifications.apps.NotificationsConfig",
     "delivery.apps.DeliveryConfig",
+    "support.apps.SupportConfig",
+    "commissions.apps.CommissionsConfig",
     "api.apps.ApiConfig",
 ]
 
@@ -73,7 +75,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard-overview"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "shop-home"
 
 
 # Database Configuration
@@ -149,3 +151,8 @@ REST_FRAMEWORK = {
 AFRICASTALKING_USERNAME = os.environ.get("AFRICASTALKING_USERNAME", "sandbox")
 AFRICASTALKING_API_KEY = os.environ.get("AFRICASTALKING_API_KEY", "")
 AFRICASTALKING_SENDER_ID = os.environ.get("AFRICASTALKING_SENDER_ID", "ShopX")
+
+# Paystack Credentials
+PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY", "")
+PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY", "")
+PAYSTACK_CALLBACK_URL = os.environ.get("PAYSTACK_CALLBACK_URL", "")

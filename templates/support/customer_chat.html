@@ -1,0 +1,39 @@
+{% extends "shop/base_shop.html" %}
+{% block title %}Chat with {{ business.name }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+    <div class="flex items-center justify-between border-b border-gray-800 pb-4 mb-4">
+      <div>
+        <h2 class="text-2xl font-bold text-white">{{ business.name }}</h2>
+        <p class="text-sm text-gray-400">Order #{{ order.order_number }}</p>
+      </div>
+      <div class="space-x-3">
+        <a href="{% url 'customer-support-ticket' order.order_number %}" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">Report a Problem</a>
+        <a href="{% url 'shop-my-orders' %}" class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm">Back to Orders</a>
+      </div>
+    </div>
+
+    <div class="space-y-4 max-h-[420px] overflow-y-auto mb-6">
+      {% for message in messages %}
+        <div class="max-w-xl {% if message.sender == 'customer' %}ml-auto{% endif %}">
+          <div class="rounded-xl px-4 py-3 {% if message.sender == 'customer' %}bg-indigo-600 text-white{% else %}bg-gray-800 text-gray-100 border border-gray-700{% endif %}">
+            {{ message.content }}
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-gray-400 text-sm">No messages yet. Start the conversation.</div>
+      {% endfor %}
+    </div>
+
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      <textarea name="message" rows="3" class="w-full bg-gray-950 border border-gray-700 rounded-xl p-3 text-white" placeholder="Type your message..."></textarea>
+      <div class="flex items-center space-x-3">
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold">Send</button>
+        <a href="" class="bg-gray-700 text-white px-5 py-2 rounded-lg">Call Business</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

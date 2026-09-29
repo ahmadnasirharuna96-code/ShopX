@@ -6,9 +6,9 @@ services:
     container_name: shopx_db
     restart: always
     environment:
-      POSTGRES_DB: shopx_db
-      POSTGRES_USER: shopx_user
-      POSTGRES_PASSWORD: shopx_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -27,13 +27,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
-      - SECRET_KEY=django-insecure-shopx-secret-key-change-in-production
-      - ALLOWED_HOSTS=localhost,127.0.0.1,*
-      - DATABASE_URL=postgresql://shopx_user:shopx_password@db:5432/shopx_db
-      - AFRICASTALKING_USERNAME=sandbox
-      - AFRICASTALKING_API_KEY=your_africastalking_api_key_here
-      - AFRICASTALKING_SENDER_ID=ShopX
+      - DEBUG=${DEBUG}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - AFRICASTALKING_USERNAME=${AFRICASTALKING_USERNAME}
+      - AFRICASTALKING_API_KEY=${AFRICASTALKING_API_KEY}
+      - AFRICASTALKING_SENDER_ID=${AFRICASTALKING_SENDER_ID}
     depends_on:
       db:
         condition: service_healthy

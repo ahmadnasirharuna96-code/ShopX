@@ -1,0 +1,13 @@
+ShopX/
+│
+├── .github/
+│   └── workflows/
+│       └── docker-build.yml
+│
+├── .dockerignore
+├── .env
+├── Dockerfile
+├── docker-compose.yml
+├── manage.py
+├── requirements.txt
+└── ...
